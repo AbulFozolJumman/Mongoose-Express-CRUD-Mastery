@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.service";
+import userValidationSchema from "./user.validation";
 
 const createUser = async (req: Request, res: Response) => {
   try {
     const user = req.body;
+
+    // Zod validation while creating user
+    const value = userValidationSchema.parse(user);
+
     // It will call service function to get this data
-    const result = await userServices.createUserIntoDB(user);
+    const result = await userServices.createUserIntoDB(value);
     res.status(200).json({
       success: true,
       message: "User created successfully!",
@@ -22,7 +27,7 @@ const getAllUser = async (req: Request, res: Response) => {
     const result = await userServices.getAllUserFromDB();
     res.status(200).json({
       success: true,
-      message: "All User retrieved successfully!",
+      message: "Users fetched successfully!",
       data: result,
     });
   } catch (error) {
@@ -37,7 +42,7 @@ const getUser = async (req: Request, res: Response) => {
     const result = await userServices.getUserFromDB(userId);
     res.status(200).json({
       success: true,
-      message: "User retrieved successfully!",
+      message: "User fetched successfully!",
       data: result,
     });
   } catch (error) {

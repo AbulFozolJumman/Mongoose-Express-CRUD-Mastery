@@ -29,5 +29,5 @@ export type IUser = {
   isActive: boolean;
   hobbies: Hobbies;
   address: Address;
-  orders: Orders;
+  orders?: Orders;
 };
