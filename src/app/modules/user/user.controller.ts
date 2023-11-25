@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.service";
 import userValidationSchema from "./user.validation";
+import { Order } from "./user.interface";
 
 const createUser = async (req: Request, res: Response) => {
   try {
@@ -148,6 +149,51 @@ const getUserOrders = async (req: Request, res: Response) => {
   }
 };
 
+const addUserOrders = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const order: Order = req.body;
+  try {
+    const result = await userServices.addOrdersInUserInDB(order, userId);
+    res.status(200).json({
+      success: true,
+      message: "Order created successfully!",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Order not found!",
+      error: {
+        code: 404,
+        description: "Order not found!",
+      },
+    });
+  }
+};
+
+const userOrdersTotalPrice = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  try {
+    const result = await userServices.userOrdersTotalPriceFromDB(userId);
+    res.status(200).json({
+      success: true,
+      message: "Total price calculated successfully!",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Order not found!",
+      error: {
+        code: 404,
+        description: "Order not found!",
+      },
+    });
+  }
+};
+
 export const userControllers = {
   createUser,
   getAllUser,
@@ -155,4 +201,6 @@ export const userControllers = {
   updateUser,
   deleteUser,
   getUserOrders,
+  addUserOrders,
+  userOrdersTotalPrice,
 };
