@@ -29,11 +29,12 @@ const getAllUser = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
 const getUser = async (req: Request, res: Response) => {
   try {
-    const { userID } = req.params;
+    const { userId } = req.params;
     // It will call service function to get this data
-    const result = await userServices.getUserFromDB(userID);
+    const result = await userServices.getUserFromDB(userId);
     res.status(200).json({
       success: true,
       message: "User retrieved successfully!",
@@ -44,4 +45,19 @@ const getUser = async (req: Request, res: Response) => {
   }
 };
 
-export const userControllers = { createUser, getAllUser, getUser };
+const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    // It will call service function to get this data
+    const result = await userServices.deleteUserFromDB(userId);
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully!",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const userControllers = { createUser, getAllUser, getUser, deleteUser };
