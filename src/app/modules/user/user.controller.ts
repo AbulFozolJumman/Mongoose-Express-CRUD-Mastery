@@ -22,6 +22,20 @@ const getAllUser = async (req: Request, res: Response) => {
     const result = await userServices.getAllUserFromDB();
     res.status(200).json({
       success: true,
+      message: "All User retrieved successfully!",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+const getUser = async (req: Request, res: Response) => {
+  try {
+    const { userID } = req.params;
+    // It will call service function to get this data
+    const result = await userServices.getUserFromDB(userID);
+    res.status(200).json({
+      success: true,
       message: "User retrieved successfully!",
       data: result,
     });
@@ -30,4 +44,4 @@ const getAllUser = async (req: Request, res: Response) => {
   }
 };
 
-export const userControllers = { createUser, getAllUser };
+export const userControllers = { createUser, getAllUser, getUser };
