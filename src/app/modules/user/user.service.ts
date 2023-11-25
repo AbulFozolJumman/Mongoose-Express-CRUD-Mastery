@@ -26,10 +26,17 @@ const deleteUserFromDB = async (userId: string) => {
   return result;
 };
 
+// get orders by user
+const getUserOrdersFromDB = async (userId: string) => {
+  const user = await User.findOne({ userId });
+  return user?.orders;
+};
+
 export const userServices = {
   createUserIntoDB,
   getAllUserFromDB,
   getUserFromDB,
   updateUserInDB,
   deleteUserFromDB,
+  getUserOrdersFromDB,
 };
