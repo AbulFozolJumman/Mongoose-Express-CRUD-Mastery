@@ -16,4 +16,18 @@ const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const userControllers = { createUser };
+const getAllUser = async (req: Request, res: Response) => {
+  try {
+    // It will call service function to get this data
+    const result = await userServices.getAllUserFromDB();
+    res.status(200).json({
+      success: true,
+      message: "User retrieved successfully!",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const userControllers = { createUser, getAllUser };
