@@ -8,10 +8,10 @@ app.use(express.json());
 app.use(cors());
 
 // User routes
-app.use("/api/v1/users", userRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!!!");
+  res.send("Server is running!");
 });
 
 export default app;
