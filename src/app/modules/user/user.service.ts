@@ -1,81 +1,117 @@
-import { IUser, Order } from "./user.interface";
+import { IUser } from "./user.interface";
 import { User } from "./user.model";
+import config from "../../config";
+import bcrypt from "bcrypt";
 
-const createUserIntoDB = async (user: IUser) => {
-  const result = await User.create(user);
+//create user
+const createUserIntoDb = async (userData: IUser) => {
+  const result = (await User.create(userData)).$set("password", undefined);
   return result;
 };
 
-const getAllUserFromDB = async () => {
-  const result = await User.find();
+//get all user
+const getAllUsersFromDb = async () => {
+  const result = await User.find().select({
+    username: 1,
+    fullName: 1,
+    age: 1,
+    email: 1,
+    address: 1,
+  });
   return result;
 };
 
-const getUserFromDB = async (userId: string) => {
-  const result = await User.findOne({ userId });
+//get single user
+const getSingleUserFromDb = async (userId: number) => {
+  if (!(await User.isUserExists(userId))) {
+    throw new Error("User does not Exist");
+  }
+  const result = await User.findOne({ userId }).select({
+    password: 0,
+    orders: 0,
+  });
   return result;
 };
 
-const updateUserInDB = async (userId: number, userData: IUser) => {
-  const result = await User.updateOne({ userId }, userData);
-  return result;
-};
-
-const deleteUserFromDB = async (userId: string) => {
+//delete single user
+const deleteSingleUserFromDb = async (userId: number) => {
+  if (!(await User.isUserExists(userId))) {
+    throw new Error("User does not Exist");
+  }
   const result = await User.deleteOne({ userId });
   return result;
 };
 
-const getUserOrdersFromDB = async (userId: string) => {
-  const user = await User.findOne({ userId });
-  return user?.orders;
-};
-
-const addOrdersInUserInDB = async (order: Order, userId: string) => {
-  const user = await User.findOne({ userId });
-
-  if (!user) {
-    throw new Error("User not found");
+//update single user
+const updateSingleUserFromDb = async (userId: number, userData: any) => {
+  if (!(await User.isUserExists(userId))) {
+    throw new Error("User does not Exist");
   }
 
-  if (!user.orders || !Array.isArray(user.orders)) {
-    user.orders = [order];
-  } else {
-    user.orders.push(order);
+  //hashing password
+  if (userData.password) {
+    userData.password = await bcrypt.hash(
+      userData.password,
+      Number(config.bcrypt_salt_rounds)
+    );
   }
-  const result = await user.save();
+  const result = await User.findOneAndUpdate({ userId }, userData).select({
+    _id: 0,
+    password: 0,
+    orders: 0,
+  });
   return result;
 };
 
-const userOrdersTotalPriceFromDB = async (userId: string) => {
-  const result = await User.aggregate([
-    { $match: { userId: userId } },
-    { $unwind: "$orders" },
-    {
-      $group: {
-        _id: null,
-        totalPrice: {
-          $sum: { $multiply: ["$orders.price", "$orders.quantity"] },
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        totalPrice: 1,
-      },
-    },
-  ]);
-  return result[0];
+//put order
+const putOrderIntoDb = async (userId: number, orderData: any) => {
+  if (!(await User.isUserExists(userId))) {
+    throw new Error("User does not Exist");
+  }
+  const result = await User.findOneAndUpdate(
+    { userId },
+    { $push: { orders: orderData } },
+    { new: true }
+  );
+  return result;
+};
+
+//get all order for single user
+const getAllOrdersFromDb = async (userId: number) => {
+  if (!(await User.isUserExists(userId))) {
+    throw new Error("User does not Exist");
+  }
+  const result = await User.findOne({ userId }).select({ orders: 1, _id: 0 });
+  return result;
+};
+
+//calculate total price of order for single user
+const calculateOrdersPriceFromDb = async (userId: number) => {
+  if (!(await User.isUserExists(userId))) {
+    throw new Error("User does not Exist");
+  }
+  const user = await User.findOne({ userId });
+  if (!user) {
+    return 0;
+  }
+  //calculate
+  let totalPrice = 0;
+  user?.orders.forEach((order) => {
+    totalPrice = parseFloat(
+      (totalPrice + order.price * order.quantity).toFixed(2)
+    );
+  });
+
+  return { totalPrice };
 };
 
 export const userServices = {
-  createUserIntoDB,
-  getAllUserFromDB,
-  getUserFromDB,
-  updateUserInDB,
-  deleteUserFromDB,
-  getUserOrdersFromDB,
-  addOrdersInUserInDB,
-  userOrdersTotalPriceFromDB,
+  createUserIntoDb,
+  getAllUsersFromDb,
+  getSingleUserFromDb,
+  deleteSingleUserFromDb,
+  updateSingleUserFromDb,
+  putOrderIntoDb,
+  getAllOrdersFromDb,
+  calculateOrdersPriceFromDb,
 };

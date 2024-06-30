@@ -1,6 +1,6 @@
 ## Server Vercel Link
 
-- https://assignment-2-o6upiwrvq-abulfozoljumman.vercel.app/
+- https://assignment-2-abulfozoljumman.vercel.app/
 
 ## Running the Program Locally
 
@@ -8,12 +8,11 @@
 
 2. Install dependencies:
 
-   npm install
+   npm install -y
 
 3. Start the server:
 
-   npm run build
-   npx ts-node-dev --respawn --transpile-only le-only src/server.ts
+   npm run start:dev
 
 4. The server runs at [http://localhost:3000/](http://localhost:3000/)
 

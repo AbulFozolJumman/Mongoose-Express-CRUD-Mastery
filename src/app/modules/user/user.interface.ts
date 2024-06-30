@@ -1,3 +1,5 @@
+import { Model } from "mongoose";
+
 export type FullName = {
   firstName: string;
   lastName: string;
@@ -11,13 +13,11 @@ export type Address = {
   country: string;
 };
 
-export type Order = {
+export type Orders = {
   productName: string;
   price: number;
   quantity: number;
 };
-
-export type Orders = Order[];
 
 export type IUser = {
   userId: number;
@@ -29,5 +29,11 @@ export type IUser = {
   isActive: boolean;
   hobbies: Hobbies;
   address: Address;
-  orders?: Orders;
+  orders?: Orders[];
 };
+
+//for creating static
+export interface UserModel extends Model<IUser> {
+  // eslint-disable-next-line no-unused-vars
+  isUserExists(userId: number): Promise<IUser | null>;
+}

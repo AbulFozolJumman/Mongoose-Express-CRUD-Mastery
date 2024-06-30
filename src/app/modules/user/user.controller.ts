@@ -1,18 +1,18 @@
 /* eslint-disable no-console */
 import { Request, Response } from "express";
 import { userServices } from "./user.service";
-import userValidationSchema from "./user.validation";
-import { Order } from "./user.interface";
+import UserValidationSchema from "./user.validation";
+import { Orders } from "./user.interface";
 
 const createUser = async (req: Request, res: Response) => {
   try {
     const user = req.body;
 
     // Zod validation while creating user
-    const value = userValidationSchema.parse(user);
+    const userData = UserValidationSchema.parse(user);
 
     // It will call service function to get this data
-    const result = await userServices.createUserIntoDB(value);
+    const result = await userServices.createUserIntoDb(userData);
     res.status(200).json({
       success: true,
       message: "User created successfully!",
@@ -34,7 +34,7 @@ const createUser = async (req: Request, res: Response) => {
 const getAllUser = async (req: Request, res: Response) => {
   try {
     // It will call service function to get this data
-    const result = await userServices.getAllUserFromDB();
+    const result = await userServices.getAllUsersFromDb();
     res.status(200).json({
       success: true,
       message: "Users fetched successfully!",
@@ -55,9 +55,9 @@ const getAllUser = async (req: Request, res: Response) => {
 
 const getUser = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const id = req.params.userId;
     // It will call service function to get this data
-    const result = await userServices.getUserFromDB(userId);
+    const result = await userServices.getSingleUserFromDb(id);
     res.status(200).json({
       success: true,
       message: "User fetched successfully!",
@@ -81,10 +81,10 @@ const updateUser = async (req: Request, res: Response) => {
     const userData = req.body;
 
     // Zod validation while creating user
-    const value = userValidationSchema.parse(userData);
+    const value = UserValidationSchema.parse(userData);
 
     const userId = value.userId;
-    const result = await userServices.updateUserInDB(userId, value);
+    const result = await userServices.updateSingleUserFromDb(userId, value);
     res.status(200).json({
       success: true,
       message: "User updated successfully",
@@ -105,9 +105,9 @@ const updateUser = async (req: Request, res: Response) => {
 
 const deleteUser = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const id = req.params.userId;
     // It will call service function to get this data
-    const result = await userServices.deleteUserFromDB(userId);
+    const result = await userServices.deleteSingleUserFromDb(id);
     res.status(200).json({
       success: true,
       message: "User deleted successfully!",
@@ -130,7 +130,7 @@ const getUserOrders = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     // It will call service function to get this data
-    const result = await userServices.getUserOrdersFromDB(userId);
+    const result = await userServices.getSingleUserFromDb(userId);
     res.status(200).json({
       success: true,
       message: "Order fetched successfully!",
@@ -151,9 +151,9 @@ const getUserOrders = async (req: Request, res: Response) => {
 
 const addUserOrders = async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const order: Order = req.body;
+  const order: Orders = req.body;
   try {
-    const result = await userServices.addOrdersInUserInDB(order, userId);
+    const result = await userServices.putOrderIntoDb(order, userId);
     res.status(200).json({
       success: true,
       message: "Order created successfully!",
@@ -175,7 +175,7 @@ const addUserOrders = async (req: Request, res: Response) => {
 const userOrdersTotalPrice = async (req: Request, res: Response) => {
   const { userId } = req.params;
   try {
-    const result = await userServices.userOrdersTotalPriceFromDB(userId);
+    const result = await userServices.calculateOrdersPriceFromDb(userId);
     res.status(200).json({
       success: true,
       message: "Total price calculated successfully!",
